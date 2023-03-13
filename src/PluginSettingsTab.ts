@@ -21,11 +21,13 @@ export class UrlSettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     const instructions = containerEl.createEl('div');
-    instructions.createEl('p', { text: 'To disable the background, clear the URL for the background.' });
+    instructions.createEl('p', { text: 'The URL needs to be a remote resource, and does not yet (or at least not on my machine) support local files.' });
+    instructions.createEl('p', { text: 'Some of the other settings, like opacity, bluriness, and input contrast, are helpers to tweak your experience.' });
+    instructions.createEl('a', { href: 'https://github.com/shmolf/obsidian-editor-background/issues', text: 'Submit an issue' });
 
     new Setting(containerEl)
       .setName('Background Image URL')
-      .setDesc('URL (local or remote) for the background image.')
+      .setDesc('URL for the background image to load.')
       .addText((text) =>
         text
           .setPlaceholder('https://example.com/image.png')
@@ -52,7 +54,7 @@ export class UrlSettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Image Bluriness')
-      .setDesc('Increasing the can make the text more legible.')
+      .setDesc('Increasing the blur can help make the text more legible.')
       .addDropdown((dropdown) => {
           dropdown
               .addOption(blurLevels.off, 'Off')
@@ -67,7 +69,7 @@ export class UrlSettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Input Area Contrast Background')
-      .setDesc('This adds a translucent background for the input area, to make it clear where you can type.')
+      .setDesc('This adds a translucent background for the input area, to help improve legibility.')
       .addToggle((toggle) => {
         toggle.setTooltip('Enable to increase the contrast of the input area.')
               .setValue(this.plugin.settings.inputContrast)
