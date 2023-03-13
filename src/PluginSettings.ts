@@ -5,12 +5,14 @@ interface PluginSettings {
   imageUrl: string;
   opacity: number;
   bluriness: string;
+  inputContrast: boolean;
 }
 
 export const DEFAULT_SETTINGS: Partial<PluginSettings> = {
   imageUrl: 'protocol:://domain.tld/path/to/image.png',
   opacity: 0.3,
   bluriness: 'low',
+  inputContrast: false,
 };
 
 export default class BackgroundPlugin extends Plugin {
@@ -30,18 +32,17 @@ export default class BackgroundPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
-    console.log(this.settings.opacity);
     this.UpdateBackground()
   }
 
   UpdateBackground(){
     const container = app.workspace.containerEl;
 
-    console.log(this.settings.opacity);
     if (container) {
       container.style.setProperty('--obsidian-editor-background-image', `url('${this.settings.imageUrl}')`);
       container.style.setProperty('--obsidian-editor-background-opacity', `${this.settings.opacity}`);
       container.style.setProperty('--obsidian-editor-background-bluriness', `blur(${this.settings.bluriness})`);
+      container.style.setProperty('--obsidian-editor-background-input-contrast', this.settings.inputContrast ? '#ffffff17' : 'none');
     }
   }
 }

@@ -11,3 +11,7 @@
     opacity: var(--obsidian-editor-background-opacity);
     filter: var(--obsidian-editor-background-bluriness);
 }
+
+.cm-editor .cm-contentContainer {
+    background: var(--obsidian-editor-background-input-contrast);
+}
