@@ -4,6 +4,9 @@ This is in early development, and likly won't see many changes unless I receive 
 Of course, if I desire something new, I'll add it. But from what I've heard from similar editor communities,
 this isn't a sought-after feature, so I don't really expect anyone else other than myself to use this.
 
+## Settings Menu
+![Settings](screenshots/SettingsMenu.jpg)
+
 ## Example 1
 ![Example 1](screenshots/Example1.jpg)
 
