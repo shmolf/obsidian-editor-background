@@ -1,8 +1,12 @@
 # Obsidian Editor Background Plugin
 
-This is in early development, and likly won't see many changes unless I receive issues or PRs.
-Of course, if I desire something new, I'll add it. But from what I've heard from similar editor communities,
-this isn't a sought-after feature, so I don't really expect anyone else other than myself to use this.
+This plugin is meant to provide an aesthetic background for the Editor view of Obsidian.
+It currently only supports remote assets, so you'll need to host your own images.
+
+As part of the settings, there's additional tweaking that's available, like modifying the
+bluriness of the background, and the contrast of the input area.
+
+I use animated gifs as my background, particularly ones by [waneella](https://waneella.com/).
 
 ## Settings Menu
 ![Settings](screenshots/SettingsMenu.jpg)
