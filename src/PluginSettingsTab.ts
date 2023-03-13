@@ -43,12 +43,8 @@ export class UrlSettingsTab extends PluginSettingTab {
       .addText(
         (text) => text.setPlaceholder(`${(DEFAULT_SETTINGS.opacity || 1) * 100}`)
           .setValue(`${this.floatToPercent(this.plugin.settings.opacity)}`)
-          .onChange(async (value: any) => {
-              console.log({
-                raw: value,
-                calc: this.percentToFloat(value)
-              });
-              this.plugin.settings.opacity = this.percentToFloat(value);
+          .onChange(async (value) => {
+              this.plugin.settings.opacity = this.percentToFloat(Number(value));
               await this.plugin.saveSettings();
               }
           )
@@ -57,16 +53,28 @@ export class UrlSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Image Bluriness')
       .setDesc('Increasing the can make the text more legible.')
-      .addDropdown(dropdown => {
-         dropdown
-             .addOption(blurLevels.off, 'Off')
+      .addDropdown((dropdown) => {
+          dropdown
+              .addOption(blurLevels.off, 'Off')
               .addOption(blurLevels.low, 'Low')
               .addOption(blurLevels.high, 'High')
-             .setValue(this.plugin.settings.bluriness)
-             .onChange(async(value) => {
+              .setValue(this.plugin.settings.bluriness)
+              .onChange(async(value) => {
                 this.plugin.settings.bluriness = value;
                 await this.plugin.saveSettings();
-             });
+              });
+      });
+
+    new Setting(containerEl)
+      .setName('Input Area Contrast Background')
+      .setDesc('This adds a translucent background for the input area, to make it clear where you can type.')
+      .addToggle((toggle) => {
+        toggle.setTooltip('Enable to increase the contrast of the input area.')
+              .setValue(this.plugin.settings.inputContrast)
+              .onChange(async(value) => {
+                this.plugin.settings.inputContrast = value;
+                await this.plugin.saveSettings();
+              });
       });
   }
 
