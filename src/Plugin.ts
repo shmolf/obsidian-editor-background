@@ -36,7 +36,7 @@ export default class BackgroundPlugin extends Plugin {
   }
 
   UpdateBackground(){
-    const container = app.workspace.containerEl;
+    const container = this.app.workspace.containerEl;
 
     if (container) {
       container.style.setProperty('--obsidian-editor-background-image', `url('${this.settings.imageUrl}')`);
