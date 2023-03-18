@@ -1,4 +1,4 @@
-import BackgroundPlugin, { DEFAULT_SETTINGS } from './PluginSettings';
+import BackgroundPlugin, { DEFAULT_SETTINGS } from './Plugin';
 import { App, PluginSettingTab, Setting } from 'obsidian';
 
 const blurLevels = {

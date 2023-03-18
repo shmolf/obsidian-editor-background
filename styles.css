@@ -1,4 +1,4 @@
-.cm-editor.ͼ1.ͼ2.ͼq:before {
+.cm-editor:before {
     content: '';
     background-blend-mode: overlay;
     background-repeat: no-repeat;

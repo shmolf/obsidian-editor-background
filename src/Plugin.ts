@@ -24,6 +24,7 @@ export default class BackgroundPlugin extends Plugin {
     this.addSettingTab(new UrlSettingsTab(this.app, this));
 
     this.app.workspace.onLayoutReady(() => this.UpdateBackground());
+    this.app.workspace.on('active-leaf-change', () => this.UpdateBackground());
   }
 
   async loadSettings() {
@@ -32,17 +33,17 @@ export default class BackgroundPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
-    this.UpdateBackground()
+    this.UpdateBackground();
   }
 
-  UpdateBackground(){
-    const container = app.workspace.containerEl;
+  UpdateBackground(doc: Document = activeDocument) {
+    const containers = doc.querySelectorAll('.cm-editor') as NodeListOf<HTMLElement>;
 
-    if (container) {
+    containers.forEach((container) => {
       container.style.setProperty('--obsidian-editor-background-image', `url('${this.settings.imageUrl}')`);
       container.style.setProperty('--obsidian-editor-background-opacity', `${this.settings.opacity}`);
       container.style.setProperty('--obsidian-editor-background-bluriness', `blur(${this.settings.bluriness})`);
       container.style.setProperty('--obsidian-editor-background-input-contrast', this.settings.inputContrast ? '#ffffff17' : 'none');
-    }
+    });
   }
 }
