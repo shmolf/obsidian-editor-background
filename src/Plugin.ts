@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, WorkspaceWindow } from 'obsidian';
 import { UrlSettingsTab } from './PluginSettingsTab';
 
 interface PluginSettings {
@@ -9,7 +9,7 @@ interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: Partial<PluginSettings> = {
-  imageUrl: 'protocol:://domain.tld/path/to/image.png',
+  imageUrl: 'protocol://domain.tld/path/to/image.png',
   opacity: 0.3,
   bluriness: 'low',
   inputContrast: false,
@@ -22,9 +22,8 @@ export default class BackgroundPlugin extends Plugin {
     await this.loadSettings();
 
     this.addSettingTab(new UrlSettingsTab(this.app, this));
-
-    this.app.workspace.onLayoutReady(() => this.UpdateBackground());
-    this.app.workspace.on('active-leaf-change', () => this.UpdateBackground());
+    this.app.workspace.onLayoutReady(() => this.UpdateBackground(document));
+    this.app.workspace.on('window-open', (win: WorkspaceWindow) => this.UpdateBackground(win.doc));
   }
 
   async loadSettings() {
@@ -37,13 +36,9 @@ export default class BackgroundPlugin extends Plugin {
   }
 
   UpdateBackground(doc: Document = activeDocument) {
-    const containers = doc.querySelectorAll('.cm-editor') as NodeListOf<HTMLElement>;
-
-    containers.forEach((container) => {
-      container.style.setProperty('--obsidian-editor-background-image', `url('${this.settings.imageUrl}')`);
-      container.style.setProperty('--obsidian-editor-background-opacity', `${this.settings.opacity}`);
-      container.style.setProperty('--obsidian-editor-background-bluriness', `blur(${this.settings.bluriness})`);
-      container.style.setProperty('--obsidian-editor-background-input-contrast', this.settings.inputContrast ? '#ffffff17' : 'none');
-    });
+    doc.body.style.setProperty('--obsidian-editor-background-image', `url('${this.settings.imageUrl}')`);
+    doc.body.style.setProperty('--obsidian-editor-background-opacity', `${this.settings.opacity}`);
+    doc.body.style.setProperty('--obsidian-editor-background-bluriness', `blur(${this.settings.bluriness})`);
+    doc.body.style.setProperty('--obsidian-editor-background-input-contrast', this.settings.inputContrast ? '#ffffff17' : 'none');
   }
 }
