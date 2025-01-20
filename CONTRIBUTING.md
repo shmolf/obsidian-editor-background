@@ -11,5 +11,5 @@ How to start contributing:
 _How do I find the plugin folder?_
 - Easiest thing to do, is to install the official plugin from the within the Obsidian app.
 - Then go to the Settings, and go to the *Community Plugins* section. From there, you can click on the *Folder* button to open the plugin folder.
-- ![image of the plugin folder](contributing-assets\find-plugin-file-location.png)
+- ![image of the plugin folder](contributing-assets/find-plugin-file-location.png)
 - Drill down into the Background plugin directory, and replace the `main.js` and `styles.css` files with your updated files.
