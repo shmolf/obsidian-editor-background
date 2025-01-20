@@ -16,6 +16,9 @@
 .markdown-reading-view,
 .cm-editor .cm-contentContainer {
 	background: var(--obsidian-editor-background-input-contrast);
+}
+
+.cm-editor .cm-contentContainer {
     padding-left: var(--obsidian-editor-background-line-padding);
     padding-right: var(--obsidian-editor-background-line-padding);
 }
