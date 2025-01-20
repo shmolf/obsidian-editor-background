@@ -6,6 +6,7 @@ interface PluginSettings {
   opacity: number;
   bluriness: string;
   inputContrast: boolean;
+  position: string;
 }
 
 export const DEFAULT_SETTINGS: Partial<PluginSettings> = {
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: Partial<PluginSettings> = {
   opacity: 0.3,
   bluriness: 'low',
   inputContrast: false,
+  position: 'center',
 };
 
 export default class BackgroundPlugin extends Plugin {
@@ -40,5 +42,7 @@ export default class BackgroundPlugin extends Plugin {
     doc.body.style.setProperty('--obsidian-editor-background-opacity', `${this.settings.opacity}`);
     doc.body.style.setProperty('--obsidian-editor-background-bluriness', `blur(${this.settings.bluriness})`);
     doc.body.style.setProperty('--obsidian-editor-background-input-contrast', this.settings.inputContrast ? '#ffffff17' : 'none');
+    doc.body.style.setProperty('--obsidian-editor-background-line-padding', this.settings.inputContrast ? '1rem' : '0');
+    doc.body.style.setProperty('--obsidian-editor-background-position', this.settings.position);
   }
 }

@@ -7,6 +7,14 @@ const blurLevels = {
   high: '15px',
 }
 
+const positionOptions = {
+  center: 'center',
+  top: 'top',
+  right: 'right',
+  bottom: 'bottom',
+  left: 'left',
+}
+
 export class UrlSettingsTab extends PluginSettingTab {
   plugin: BackgroundPlugin;
 
@@ -78,6 +86,19 @@ export class UrlSettingsTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
               });
       });
+
+    new Setting(containerEl)
+        .setName('Image Position')
+        .setDesc('Reposition the image in cases where the focus is not centered.')
+        .addDropdown((dropdown) => {
+            Object.entries(positionOptions).forEach(([key, value]) => dropdown.addOption(key, value));
+            dropdown
+              .setValue(this.plugin.settings.position)
+              .onChange(async(value) => {
+                  this.plugin.settings.position = value;
+                  await this.plugin.saveSettings();
+              });
+        });
   }
 
   floatToPercent(value: number) {
