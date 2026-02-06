@@ -8,7 +8,13 @@
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
-	"keywords": ["obsidian", "plugin", "background", "image", "opacity, remote url"],
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"background",
+		"image",
+		"opacity, remote url"
+	],
 	"author": "shmolf",
 	"license": "MIT",
 	"devDependencies": {

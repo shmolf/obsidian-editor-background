@@ -1,6 +1,6 @@
 .markdown-reading-view:before,
 .cm-editor:before {
-	content: "";
+	content: '';
 	background-blend-mode: overlay;
 	background-repeat: no-repeat;
 	background-position: var(--obsidian-editor-background-position);
@@ -19,8 +19,8 @@
 }
 
 .cm-editor .cm-contentContainer {
-    padding-left: var(--obsidian-editor-background-line-padding);
-    padding-right: var(--obsidian-editor-background-line-padding);
+	padding-left: var(--obsidian-editor-background-line-padding);
+	padding-right: var(--obsidian-editor-background-line-padding);
 }
 
 /* This sets the background for the whole app, seen with a positive z-index. However, the z-index disrupts interactions.

@@ -1,9 +1,12 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
 .idea
+
+# Zed
+.zed
 
 # npm
 node_modules
@@ -20,3 +23,10 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# environment
+.env
+.env.local
+
+# TODO
+todo.txt
