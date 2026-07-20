@@ -1,0 +1,51 @@
+# Builds the plugin and attaches main.js, manifest.json, and styles.css to a
+# draft GitHub release whenever a tag is pushed. This guarantees the release
+# assets always match the tagged source, so the manifest version can never
+# drift from the release tag again (see issue #25).
+#
+# Based on Obsidian's official guide:
+# https://docs.obsidian.md/Plugins/Releasing/Release+your+plugin+with+GitHub+Actions
+name: Release Obsidian plugin
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+
+      - name: Build plugin
+        run: |
+          npm ci
+          npm run build
+
+      - name: Verify manifest version matches tag
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          manifest_version="$(node -p "require('./manifest.json').version")"
+          if [ "$tag" != "$manifest_version" ]; then
+            echo "Tag ($tag) does not match manifest.json version ($manifest_version)." >&2
+            exit 1
+          fi
+
+      - name: Create draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release create "$tag" \
+            --title="$tag" \
+            --draft \
+            main.js manifest.json styles.css
