@@ -3,8 +3,8 @@
 	content: "";
 	background-blend-mode: overlay;
 	background-repeat: no-repeat;
-	background-position: var(--obsidian-editor-background-position);
-	background-size: cover;
+	background-position: var(--obsidian-editor-background-position, center);
+	background-size: var(--obsidian-editor-background-size, cover);
 	width: 100%;
 	height: 100%;
 	position: absolute;
@@ -19,31 +19,58 @@
 }
 
 .cm-editor .cm-contentContainer {
-    padding-left: var(--obsidian-editor-background-line-padding);
-    padding-right: var(--obsidian-editor-background-line-padding);
+	padding-left: var(--obsidian-editor-background-line-padding);
+	padding-right: var(--obsidian-editor-background-line-padding);
 }
 
-/* This sets the background for the whole app, seen with a positive z-index. However, the z-index disrupts interactions.
-.horizontal-main-container:before {
+/* Per-note exclusions: the plugin marks matching markdown views with this class. */
+.editor-background-excluded .markdown-reading-view:before,
+.editor-background-excluded .cm-editor:before {
+	display: none;
+}
+
+.editor-background-excluded .markdown-reading-view,
+.editor-background-excluded .cm-editor .cm-contentContainer {
+	background: none;
+}
+
+/*
+ * Whole-window mode: draw one image behind the entire app instead of one per pane.
+ * The image lives on a negative z-index pseudo-element, so it never intercepts
+ * pointer events, and the workspace chrome is made transparent so it shows through.
+ */
+body.editor-background-whole-window .markdown-reading-view:before,
+body.editor-background-whole-window .cm-editor:before {
+	display: none;
+}
+
+body.editor-background-whole-window .app-container {
+	position: relative;
+	z-index: 0;
+}
+
+body.editor-background-whole-window .app-container:before {
 	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
 	background-blend-mode: overlay;
 	background-repeat: no-repeat;
-	background-position: var(--obsidian-editor-background-position);
-	background-size: cover;
-	width: 100%;
-	height: 100%;
-	position: absolute;
+	background-position: var(--obsidian-editor-background-position, center);
+	background-size: var(--obsidian-editor-background-size, cover);
 	background-image: var(--obsidian-editor-background-image);
 	opacity: var(--obsidian-editor-background-opacity);
 	filter: var(--obsidian-editor-background-bluriness);
 }
 
-.horizontal-main-container {
-	background: var(--obsidian-editor-background-input-contrast);
+body.editor-background-whole-window .workspace,
+body.editor-background-whole-window .workspace-split,
+body.editor-background-whole-window .workspace-tabs,
+body.editor-background-whole-window .workspace-tab-container,
+body.editor-background-whole-window .workspace-tab-header-container,
+body.editor-background-whole-window .workspace-leaf,
+body.editor-background-whole-window .workspace-leaf-content,
+body.editor-background-whole-window .workspace-ribbon,
+body.editor-background-whole-window .view-content {
+	background-color: transparent;
 }
-.markdown-reading-view,
-.cm-editor .cm-contentContainer {
-    padding-left: var(--obsidian-editor-background-line-padding);
-    padding-right: var(--obsidian-editor-background-line-padding);
-}
-*/
