@@ -12,9 +12,6 @@ on:
   push:
     tags:
       - "*"
-    # Temporary bootstrap trigger to cut the 1.4.0 release; removed right after.
-    branches:
-      - "claude/plugin-review-update-0wd33m"
   workflow_dispatch:
     inputs:
       version:
