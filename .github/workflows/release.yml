@@ -1,7 +1,16 @@
-# Builds the plugin and attaches main.js, manifest.json, and styles.css to a
-# draft GitHub release whenever a tag is pushed. This guarantees the release
-# assets always match the tagged source, so the manifest version can never
-# drift from the release tag again (see issue #25).
+# Fully automated releases: whenever manifest.json on main contains a version
+# that has no published release yet, this workflow builds the plugin, creates
+# the matching tag, and publishes the release with main.js, manifest.json, and
+# styles.css attached. Because the assets are always built from the tagged
+# source, the manifest version can never drift from the release tag (issue #25).
+#
+# To ship a release: run `npm version patch|minor|major` (which updates
+# package.json, manifest.json, and versions.json via version-bump.mjs and
+# commits the result), then push/merge to main. CI does the rest.
+#
+# A manually pushed tag or a run from the Actions tab (workflow_dispatch)
+# triggers the same logic, and re-running is always safe: if the release
+# already exists, the workflow is a no-op.
 #
 # Based on Obsidian's official guide:
 # https://docs.obsidian.md/Plugins/Releasing/Release+your+plugin+with+GitHub+Actions
@@ -9,14 +18,23 @@ name: Release Obsidian plugin
 
 on:
   push:
+    branches:
+      - "main"
+    paths:
+      - "manifest.json"
     tags:
       - "*"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,26 +44,57 @@ jobs:
         with:
           node-version: "18.x"
 
+      - name: Determine version
+        id: version
+        run: |
+          version="$(node -p "require('./manifest.json').version")"
+          if [ "${GITHUB_REF#refs/tags/}" != "$GITHUB_REF" ] && [ "${GITHUB_REF#refs/tags/}" != "$version" ]; then
+            echo "Tag (${GITHUB_REF#refs/tags/}) does not match manifest.json version ($version)." >&2
+            exit 1
+          fi
+          if ! node -e "process.exit(require('./versions.json')['$version'] ? 0 : 1)"; then
+            echo "versions.json has no entry for $version. Run 'npm version' to bump properly." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check for existing release
+        id: existing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          if gh release view "$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $version already exists; nothing to do."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build plugin
+        if: steps.existing.outputs.exists == 'false'
         run: |
           npm ci
           npm run build
 
-      - name: Verify manifest version matches tag
+      - name: Create tag
+        if: steps.existing.outputs.exists == 'false'
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          manifest_version="$(node -p "require('./manifest.json').version")"
-          if [ "$tag" != "$manifest_version" ]; then
-            echo "Tag ($tag) does not match manifest.json version ($manifest_version)." >&2
-            exit 1
+          version="${{ steps.version.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$version" >/dev/null 2>&1; then
+            echo "Tag $version already exists; skipping."
+          else
+            git tag "$version"
+            git push origin "$version"
           fi
 
-      - name: Create draft release
+      - name: Publish release
+        if: steps.existing.outputs.exists == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gh release create "$tag" \
-            --title="$tag" \
-            --draft \
+          version="${{ steps.version.outputs.version }}"
+          gh release create "$version" \
+            --title="$version" \
+            --generate-notes \
             main.js manifest.json styles.css
