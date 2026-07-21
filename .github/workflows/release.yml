@@ -12,6 +12,9 @@ on:
   push:
     tags:
       - "*"
+    # Temporary bootstrap trigger to cut the 1.4.0 release; removed right after.
+    branches:
+      - "claude/plugin-review-update-0wd33m"
   workflow_dispatch:
     inputs:
       version:
@@ -42,8 +45,10 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             tag="${{ inputs.version }}"
-          else
+          elif [ "${GITHUB_REF#refs/tags/}" != "$GITHUB_REF" ]; then
             tag="${GITHUB_REF#refs/tags/}"
+          else
+            tag="$(node -p "require('./manifest.json').version")"
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
@@ -56,19 +61,27 @@ jobs:
             exit 1
           fi
 
-      - name: Create tag (manual release only)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Create tag (when not triggered by a tag push)
+        if: startsWith(github.ref, 'refs/tags/') == false
         run: |
           tag="${{ steps.version.outputs.tag }}"
-          git tag "$tag"
-          git push origin "$tag"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists; skipping."
+          else
+            git tag "$tag"
+            git push origin "$tag"
+          fi
 
       - name: Create draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag="${{ steps.version.outputs.tag }}"
-          gh release create "$tag" \
-            --title="$tag" \
-            --draft \
-            main.js manifest.json styles.css
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; skipping."
+          else
+            gh release create "$tag" \
+              --title="$tag" \
+              --draft \
+              main.js manifest.json styles.css
+          fi
