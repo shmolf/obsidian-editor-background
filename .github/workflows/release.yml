@@ -1,5 +1,6 @@
 # Builds the plugin and attaches main.js, manifest.json, and styles.css to a
-# draft GitHub release whenever a tag is pushed. This guarantees the release
+# draft GitHub release. Runs when a tag is pushed, or manually from the
+# Actions tab (which also creates the tag). This guarantees the release
 # assets always match the tagged source, so the manifest version can never
 # drift from the release tag again (see issue #25).
 #
@@ -11,6 +12,11 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (must match manifest.json, e.g. 1.4.0)"
+        required: true
 
 permissions:
   contents: write
@@ -31,20 +37,37 @@ jobs:
           npm ci
           npm run build
 
+      - name: Determine version
+        id: version
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            tag="${{ inputs.version }}"
+          else
+            tag="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
       - name: Verify manifest version matches tag
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
+          tag="${{ steps.version.outputs.tag }}"
           manifest_version="$(node -p "require('./manifest.json').version")"
           if [ "$tag" != "$manifest_version" ]; then
             echo "Tag ($tag) does not match manifest.json version ($manifest_version)." >&2
             exit 1
           fi
 
+      - name: Create tag (manual release only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          git tag "$tag"
+          git push origin "$tag"
+
       - name: Create draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
+          tag="${{ steps.version.outputs.tag }}"
           gh release create "$tag" \
             --title="$tag" \
             --draft \
